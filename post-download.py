@@ -44,12 +44,12 @@ for i in output:
     carve1= i.split('         ')
     #print(carve1)
     ## we only need to keep item 2 from the carved up list item and append it to the new list
-    torName.append(carve1[1].strip())
+    torName.append(carve1[-1].strip())
 
     ## Lets get the ID for each torrent so we can remove it after our copy
     carve2= i.split('   ')
     #print(carve2[1])
-    torID.append(carve2[1].strip())
+    torID.append(carve2[0].strip())
 
 
 ########################################################################
