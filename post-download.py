@@ -55,7 +55,7 @@ for i in output:
     ## Lets get the ID for each torrent so we can remove it after our copy
     carve2= i.split()
     #carve2=["12"]
-    print(carve2[0])
+    print("TorID number ---- ",carve2[0])
     torID.append(carve2[0].strip())
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -80,8 +80,9 @@ for i,f in enumerate(torName):
         tvpath=destpath+showname
 
         try:
-                            
-            print("Moving directory for processing")    
+
+            print("Moving directory for processing")
+            print("THIS IS THE STUFF THATS MOVING ------ ",source_dir)
             distutils.dir_util.copy_tree(source_dir, tvpath)  #shutil.copytree(source_dir, destpath)
             print("Directory move completed.")
         except:
@@ -93,11 +94,12 @@ for i,f in enumerate(torName):
 
     else: #Season and Episode info not found so it's not a TV show, we can send it to the movie directory
         showname=re.sub(r"^\s+","",f)
+        filname=showname.split('      ')
         #print("cp -a \"",fullpath,showname,"\" -t ",destpath,sep='')
         ## combine the path with the directory name
         source_dir=fullpath+showname
         moviepath=mvpath+showname
-        
+        #print("THIS SHOULD BE THE SHOW NAME ------ ",filname[-1])
 
         try:
             print("This is most likely a movie, let's see if there's any compressed files here")
@@ -108,7 +110,7 @@ for i,f in enumerate(torName):
                         decompfile=source_dir+"/"+f
                         print("Found a rar file, gonna extract it.  ", f)
                         patoolib.extract_archive(decompfile,outdir=mvpath)
-                        
+
             #distutils.dir_util.copy_tree(source_dir, moviepath)  #shutil.copytree(source_dir, destpath)
 
         except:
@@ -116,6 +118,20 @@ for i,f in enumerate(torName):
             print >> sys.stderr, "Could not copy folder"
             print >> sys.stderr, "Exception: %s" % str(e)
             exit(1)
+        try:
+            print("There were no compressed files so let see if it's just a single file movie.")
+            if f.lower().endswith(".mkv") or f.lower().endswith(".mp4") or f.lower().endswith(".avi"):
+                filname=showname.split('      ')
+                source_dir=fullpath+filname[-1]
+                print("Copying file over to the movie server ---- ",source_dir)
+                distutils.file_util.copy_file(source_dir,mvpath)
+
+        except:
+            print("An exception occurred")
+            print >> sys.stderr, "Could not copy file"
+            print >> sys.stderr, "Exception: %s" % str(e)
+            exit(1)
+
 
     #print("\nNow we can remove the torrents with the ID ----- ",torID[i],"\n\n")
     #print("transmission-remote sickchill:9091 -t ",torID[i]," -rad",sep='')
@@ -126,6 +142,7 @@ for i,f in enumerate(torName):
     print(removetor)
     try:
         os.system(removetor)
+        #print("This would remove the torrent")
     except:
         print("An exception occurred")
         print >> sys.stderr, "does not exist"
