@@ -20,6 +20,43 @@ mvpath="/home/movies/movies/"
 fullpath="/torrent-nzb/torrents/"
 #################################
 
+def gettorrent():
+##################### This function gets the torrent info and cuts it into two chunks - the ID and torrent name and
+##################### returns it as a list. It's split on the spacing before the torrent name in the returned data from
+##################### transmission.
+
+        idle = sp.getoutput('transmission-remote sickchill:9091 -l | grep Idle')
+        seeding = sp.getoutput('transmission-remote sickchill:9091 -l | grep Seeding')
+        fin = sp.getoutput('transmission-remote sickchill:9091 -l | grep Finished')
+
+        if idle != '':
+                print("Result of idle ---- ",idle)
+                dataset = idle.split('         ')
+                idreturn = dataset[0].split('   ')
+                idreturn = idreturn[1].strip()
+                print("This is the return data from transmission ------ ",dataset)
+                result = [idreturn,dataset[-1]]
+        elif seeding !='':
+                print("Result of seeding ---- ",seeding)
+                dataset = seeding.split('      ')
+                idreturn = dataset[0].split('   ')
+                idreturn = idreturn[1].strip()
+                print("This is the return data from transmission ------ ",dataset)
+                result = [idreturn,dataset[-1]]
+        elif fin != '':
+                print("Result of finished ---- ",fin)
+                dataset = fin.split('     ')
+                idreturn = dataset[0].split('   ')
+                idreturn = idreturn[1].strip()
+                print("This is the return data from transmission ------ ",dataset)
+                result = [idreturn,dataset[-1]]
+        else:
+                print("Result of idle ---- ",idle)
+                print("Result of seeding ---- ",seeding)
+                print("Result of seeding ---- ",fin)
+                result = "No active torrents"
+
+        return result
 
 
 
@@ -27,39 +64,17 @@ fullpath="/torrent-nzb/torrents/"
 torName=[]
 torID=[]
 
-#### ---- Get the output from the transmission server for tors that are at Idle
-output = sp.getoutput('transmission-remote sickchill:9091 -l | grep Idle')
 
-#### ----- Split the single return in to a list
-output = output.split('\n')
+output = gettorrent()
+if output == "No active torrents":
+        print("There are no active torrents, exiting.......")
+        quit()
+print("THIS IS THE OUTPUT RETURNED LIST ----------------- ",output)
 
-######### Here's the less than stellar output we need to deal with from transmission-remote
-#   ID   Done       Have  ETA           Up    Down  Ratio  Status       Name
-#     1   100%   540.9 MB  Done         0.0     0.0    0.0  Idle         TORRENT NAME MIGHT HAVE Spaces
-#     2   100%   193.6 MB  Done         0.0     0.0    0.0  Idle         Torrent.name.might.not.have.spaces
-#Sum:            734.5 MB               0.0     0.0
-######### Since we at least grep for only the Idle status we don't need to worry about the tope and bottom rows
-###### So as you can see above the largest space blocks are 9 wide.
+torName.append(output[-1].strip())
 
-
-#### ------ Now to carve out what we need from each list item
-for i in output:
-
-    # we need to cut on the largest space block which should be the space between the Idle state and the Name
-    carve1= i.split('         ')
-    #carve1=["The.Forgiven.2021.720p.WEB.H264-KBOX"]
-    print(carve1)
-    ## we only need to keep item 2 from the carved up list item and append it to the new list
-    torName.append(carve1[-1].strip())
-
-    ## Lets get the ID for each torrent so we can remove it after our copy
-    carve2= i.split()
-    #carve2=["12"]
-    print("TorID number ---- ",carve2[0])
-    torID.append(carve2[0].strip())
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+print("TorID number ---- ",output[0])
+torID.append(output[0].strip())
 
 ########################################################################
 # now we have a clean directory and tor name. Some might have spaces so we need to make sure we
@@ -120,11 +135,16 @@ for i,f in enumerate(torName):
             exit(1)
         try:
             print("There were no compressed files so let see if it's just a single file movie.")
-            if f.lower().endswith(".mkv") or f.lower().endswith(".mp4") or f.lower().endswith(".avi"):
+            if showname.lower().endswith(".mkv") or showname.lower().endswith(".mp4") or showname.lower().endswith(".avi"):
                 filname=showname.split('      ')
                 source_dir=fullpath+filname[-1]
                 print("Copying file over to the movie server ---- ",source_dir)
                 distutils.file_util.copy_file(source_dir,mvpath)
+            else:
+                print("No single file movie found, must be in a sub directory.")
+                print("THIS IS THE PATH AND FILE ----- ",filname[-1])
+                source_dir=fullpath+filname[-1]
+                distutils.dir_util.copy_tree(source_dir, mvpath)
 
         except:
             print("An exception occurred")
