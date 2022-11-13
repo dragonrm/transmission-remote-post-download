@@ -4,6 +4,7 @@
 import os
 import sys
 import re
+import time
 import shutil
 import subprocess as sp
 import distutils.core
@@ -79,6 +80,7 @@ torID.append(output[0].strip())
 ########################################################################
 # now we have a clean directory and tor name. Some might have spaces so we need to make sure we
 # quote the commands so they can pass correctly
+time.sleep(2.5)
 
 for i,f in enumerate(torName):
 
