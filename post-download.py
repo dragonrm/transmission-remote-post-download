@@ -31,7 +31,7 @@ def gettorrent():
         fin = sp.getoutput('transmission-remote sickchill:9091 -l | grep Finished')
 
         if idle != '':
-                print("Result of idle ---- ",idle)
+                print("Result of idle ---- \n",idle)
                 dataset = idle.split('\n')
                 dataset.insert(0,"idle")
                 result = dataset
@@ -119,13 +119,14 @@ time.sleep(2.5)
 n = 2 # batch size
 for i in range(0, len(output)-n+1, n):
     batch = output[i:i+n]
-    #print("BATCH DATA LIST ___________________________ ",batch,"\n\n -------------------------------")
+    print("BATCH DATA LIST ___________________________ ",batch,"\n\n -------------------------------")
     torName.append(batch[1].strip())
     torID.append(batch[0].strip())
     #print("TorID number ---- ",torID,"TorName ----- ",torName)
 
-    for i,f in enumerate(torName):
-
+    #for i,f in enumerate(torName):
+    for f in torName:
+        print("This is the value we are running with *************************  ",f,"\n\n")
         regexp = re.compile(r'[sS]+[0-9]+[eE]')
         #this regex is used to see if the filename contains a Season number and Episode number
         #If the filename does then it's handled like a TV show and sent to the sickchill drop directory
@@ -133,8 +134,8 @@ for i in range(0, len(output)-n+1, n):
         if regexp.search(f): #check for Season and Episode numbering
             showname=re.sub(r"^\s+","",f)
             print("This is a TV show. #################################################")
-#            print("cp -a \"",fullpath,showname,"\" -t ",destpath,sep='')
-#            print("\n\n")
+            # print("cp -a \"",fullpath,showname,"\" -t ",destpath,sep='')
+            # print("\n\n")
             ## combine the path with the directory name
             source_dir=fullpath+showname
             tvpath=destpath+showname
@@ -227,16 +228,18 @@ for i in range(0, len(output)-n+1, n):
 
 
 
-        removetor="transmission-remote sickchill:9091 -t %s -rad"%(torID[i])
-        print(removetor)
-        try:
-            os.system(removetor)
-            print("This would remove the torrent\n\n\n")
-        except:
-            print("An exception occurred")
-            print >> sys.stderr, "does not exist"
-            print >> sys.stderr, "Exception: %s" % str(e)
-            exit(1)
+    removetor="transmission-remote sickchill:9091 -t %s -rad"%(torID[0])
+    print(removetor)
+    torName.clear()
+    torID.clear()
+    try:
+        os.system(removetor)
+        print("This would remove the torrent\n\n\n")
+    except:
+        print("An exception occurred")
+        print >> sys.stderr, "does not exist"
+        print >> sys.stderr, "Exception: %s" % str(e)
+        exit(1)
 
 
 
@@ -244,6 +247,9 @@ for i in range(0, len(output)-n+1, n):
 
 
 #----------------------------------------
+
+
+
 
 
 
