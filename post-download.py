@@ -50,7 +50,7 @@ def gettorrent():
         else:
                 print("Result of idle ---- ",idle)
                 print("Result of seeding ---- ",seeding)
-                print("Result of seeding ---- ",fin)
+                print("Result of finished ---- ",fin)
                 result = "No active torrents"
 
         return result
