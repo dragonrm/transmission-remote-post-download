@@ -69,14 +69,14 @@ def cleantor(tors):
                dataset += [idreturn,predataset[-1]]
                i+=1
             elif tors[0] == "seeding":
-               dataset = tors[i].split('      ')
+               predataset = tors[i].split('      ')
                idreturn = predataset[0].split('   ')
                idreturn = idreturn[1].strip()
                dataset += [idreturn,predataset[-1]]
 
                i+=1
             elif tors[0] == "fin":
-               dataset = fin.split('     ')
+               predataset = fin.split('     ')
                idreturn = predataset[0].split('   ')
                idreturn = idreturn[1].strip()
                dataset += [idreturn,predataset[-1]]
@@ -92,7 +92,7 @@ def cleantor(tors):
 
 
 
-## Intialize out lists
+## Intialize our lists
 torName=[]
 torID=[]
 
@@ -109,10 +109,7 @@ if tors == "No active torrents":
 print("THIS IS THE OUTPUT RETURNED LIST ----------------- \n",output)
 
 
-#-------------------------------------
-########################################################################
-# now we have a clean directory and tor name. Some might have spaces so we need to make sure we
-# quote the commands so they can pass correctly
+
 time.sleep(2.5)
 
 
@@ -124,7 +121,6 @@ for i in range(0, len(output)-n+1, n):
     torID.append(batch[0].strip())
     #print("TorID number ---- ",torID,"TorName ----- ",torName)
 
-    #for i,f in enumerate(torName):
     for f in torName:
         print("This is the value we are running with *************************  ",f,"\n\n")
         regexp = re.compile(r'[sS]+[0-9]+[eE]')
@@ -172,7 +168,8 @@ for i in range(0, len(output)-n+1, n):
                             print("Found a rar file, gonna extract it. #######################\n ", f)
                             patoolib.extract_archive(decompfile,outdir=mvpath)
                             print("Extract files to -------------- ", mvpath)
-                #distutils.dir_util.copy_tree(source_dir, moviepath)  #shutil.copytree(source_dir, destpath)
+                            rarfound="yes"
+                
 
             except:
                 print("An exception occurred")
@@ -180,41 +177,38 @@ for i in range(0, len(output)-n+1, n):
                 print >> sys.stderr, "Exception: %s" % str(e)
                 exit(1)
             try:
-                print("\nThere were no compressed files so let see if it's just a single file movie.\n")
-                #print("This is the name we are working with ----------------------------",filname)
-                for root,_,the_files in os.walk(source_dir):
-                    print("Looking for video files in - ",root," we have found - ",the_files)
+                if rarfound == "yes":
+                    break
+                else:
+                    print("\nThere were no compressed files so let see if it's just a single file movie.\n")
+                    #print("This is the name we are working with ----------------------------",filname)
+                    for root,_,the_files in os.walk(source_dir):
+                        print("Looking for video files in - ",root," we have found - ",the_files)
 
-                    for name in the_files:
-                        #print("This is the NAME in this loop ------------------ ",name)
-                        if name.lower().endswith(".mkv") or name.lower().endswith(".mp4") or name.lower().endswith(".avi"):
-                           if "sample" in name.lower():
-                              print("\n\nThis is a sample file and we will NOT copy this ------- ",name)
-                              continue
+                        for name in the_files:
+                            #print("This is the NAME in this loop ------------------ ",name)
+                            if name.lower().endswith(".mkv") or name.lower().endswith(".mp4") or name.lower().endswith(".avi"):
+                                if "sample" in name.lower():
+                                    print("\n\nThis is a sample file and we will NOT copy this ------- ",name)
+                                    continue
 
-                           filname=showname.split('      ')
-                           source_dir=fullpath+filname[-1]
-                           movie_dir=root+"/"+name
-                           #print("Found the file-------------- ",name)
-                           print("Copying file over to the movie server ---- ",movie_dir)
-                           copycmd="distutils.file_util.copy_file(%s,%s)"%(movie_dir,mvpath)
-                           print(copycmd)
-                           try:
-                               distutils.file_util.copy_file(movie_dir,mvpath)
-                               print("Movie has been transfered to the movie directory")
+                            filname=showname.split('      ')
+                            source_dir=fullpath+filname[-1]
+                            movie_dir=root+"/"+name
+                            #print("Found the file-------------- ",name)
+                            print("Copying file over to the movie server ---- ",movie_dir)
+                            copycmd="distutils.file_util.copy_file(%s,%s)"%(movie_dir,mvpath)
+                            print(copycmd)
+                            try:
+                                distutils.file_util.copy_file(movie_dir,mvpath)
+                                print("Movie has been transfered to the movie directory")
 
-                           except:
-                               print("An exception occurred")
-                               print >> sys.stderr, "file copy of movie failed"
-                               print >> sys.stderr, "Exception: %s" % str(e)
-                               exit(1)
+                            except:
+                                print("An exception occurred")
+                                print >> sys.stderr, "file copy of movie failed"
+                                print >> sys.stderr, "Exception: %s" % str(e)
+                                exit(1)
 
-
-        #            else:
-        #                print("No single file movie found, must be in a sub directory.")
-        #                print("THIS IS THE PATH AND FILE ----- ",filname[-1])
-        #                source_dir=fullpath+filname[-1]
-        #                distutils.dir_util.copy_tree(source_dir, mvpath)
 
             except:
                 print("An exception occurred")
@@ -222,9 +216,6 @@ for i in range(0, len(output)-n+1, n):
                 print >> sys.stderr, "Exception: %s" % str(e)
                 exit(1)
 
-
-        #print("\nNow we can remove the torrents with the ID ----- ",torID[i],"\n\n")
-        #print("transmission-remote sickchill:9091 -t ",torID[i]," -rad",sep='')
 
 
 
