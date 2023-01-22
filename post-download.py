@@ -66,20 +66,23 @@ def cleantor(tors):
                predataset = tors[i].split('         ')
                idreturn = predataset[0].split('   ')
                idreturn = idreturn[1].strip()
-               dataset += [idreturn,predataset[-1]]
+               complevel = predataset[0].split('   ')
+               dataset += [idreturn,predataset[-1],complevel[2]]
                i+=1
             elif tors[0] == "seeding":
                predataset = tors[i].split('      ')
                idreturn = predataset[0].split('   ')
                idreturn = idreturn[1].strip()
-               dataset += [idreturn,predataset[-1]]
+               complevel = predataset[0].split('   ')
+               dataset += [idreturn,predataset[-1],complevel[2]]
 
                i+=1
             elif tors[0] == "fin":
                predataset = fin.split('     ')
                idreturn = predataset[0].split('   ')
                idreturn = idreturn[1].strip()
-               dataset += [idreturn,predataset[-1]]
+               complevel = predataset[0].split('   ')
+               dataset += [idreturn,predataset[-1],complevel[2]]
 
                i+=1
             else:
@@ -92,10 +95,10 @@ def cleantor(tors):
 
 
 
-## Intialize our lists
+## Intialize out lists
 torName=[]
 torID=[]
-
+rarfound="no"
 #Get the torrent or torrents that are ready
 tors = gettorrent()
 
@@ -109,18 +112,26 @@ if tors == "No active torrents":
 print("THIS IS THE OUTPUT RETURNED LIST ----------------- \n",output)
 
 
-
+#-------------------------------------
+########################################################################
+# now we have a clean directory and tor name. Some might have spaces so we need to make sure we
+# quote the commands so they can pass correctly
 time.sleep(2.5)
 
 
-n = 2 # batch size
+n = 3 # batch size
 for i in range(0, len(output)-n+1, n):
     batch = output[i:i+n]
-    print("BATCH DATA LIST ___________________________ ",batch,"\n\n -------------------------------")
+    #print("BATCH DATA LIST ___________________________ ",batch,"\n\n -------------------------------")
     torName.append(batch[1].strip())
     torID.append(batch[0].strip())
+    print("THIS IS THE DATA TYPE OF BATCH[2] ---------- ",type(batch[2]))
     #print("TorID number ---- ",torID,"TorName ----- ",torName)
+    if batch[2] != "100%":
+        print("THIS TORRENT IS NOT FINISHED YET _------------------------ ",batch[2])
+        continue
 
+    #for i,f in enumerate(torName):
     for f in torName:
         print("This is the value we are running with *************************  ",f,"\n\n")
         regexp = re.compile(r'[sS]+[0-9]+[eE]')
@@ -140,7 +151,7 @@ for i in range(0, len(output)-n+1, n):
 
                 print("Copying directory for processing")
                 print("THIS IS THE STUFF THATS COPYING ------ ",source_dir)
-                distutils.dir_util.copy_tree(source_dir, tvpath)  #shutil.copytree(source_dir, destpath)
+                distutils.dir_util.copy_tree(source_dir, tvpath)
                 print("Directory copy completed.\n________________________________________________________________")
             except:
                 print("An exception occurred!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
@@ -169,7 +180,7 @@ for i in range(0, len(output)-n+1, n):
                             patoolib.extract_archive(decompfile,outdir=mvpath)
                             print("Extract files to -------------- ", mvpath)
                             rarfound="yes"
-                
+
 
             except:
                 print("An exception occurred")
@@ -210,11 +221,19 @@ for i in range(0, len(output)-n+1, n):
                                 exit(1)
 
 
+        #            else:
+        #                print("No single file movie found, must be in a sub directory.")
+        #                print("THIS IS THE PATH AND FILE ----- ",filname[-1])
+        #                source_dir=fullpath+filname[-1]
+        #                distutils.dir_util.copy_tree(source_dir, mvpath)
+
             except:
                 print("An exception occurred")
                 print >> sys.stderr, "Could not copy file!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
                 print >> sys.stderr, "Exception: %s" % str(e)
                 exit(1)
+
+
 
 
 
@@ -238,9 +257,5 @@ for i in range(0, len(output)-n+1, n):
 
 
 #----------------------------------------
-
-
-
-
 
 
