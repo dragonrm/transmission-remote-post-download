@@ -195,6 +195,23 @@ for i in range(0, len(output)-n+1, n):
                 else:
                     print("\nThere were no compressed files so let see if it's just a single file movie.\n")
                     #print("This is the name we are working with ----------------------------",filname)
+                    
+                    isfile = os.path.isfile(source_dir)
+                    print ("the above line should tell me if it's a file or not ------------------------",source_dir)
+                    if isfile == True:
+                        print("WE HAVE A FILE AND NOT A FOLDER ",source_dir)
+                        copycmd="distutils.file_util.copy_file(%s,%s)"%(source_dir,mvpath)
+                        print(copycmd)
+                        try:
+                            distutils.file_util.copy_file(source_dir,mvpath)
+                            print("Movie has been transfered to the movie directory")
+
+                        except:
+                            print("An exception occurred")
+                            print >> sys.stderr, "file copy of movie failed"
+                            print >> sys.stderr, "Exception: %s" % str(e)
+                            exit(1)
+
                     for root,_,the_files in os.walk(source_dir):
                         print("Looking for video files in - ",root," we have found - ",the_files)
 
